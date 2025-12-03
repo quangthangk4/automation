@@ -1,0 +1,14 @@
+testcase_id,deposit_amount,withdraw_amount,expect_balance,expect_message,error_message_input
+TC-007-001,10000,0,10000,Invalid amount. Please enter an amount greater than 0,
+TC-007-002,10000,1,9999,Transaction successful,
+TC-007-003,10000,2,9998,Transaction successful,
+TC-007-004,10000,5000,5000,Transaction successful,
+TC-007-005,10000,9999,1,Transaction successful,
+TC-007-006,10000,10000,0,Transaction successful,
+TC-007-007,10000,10001,10000,Transaction Failed. You can not withdraw amount more than the balance.,
+TC-007-008,10000,abc,10000,,Please fill out this field.
+TC-007-009,10000,#$%,10000,,Please fill out this field.
+TC-007-010,10000,100.75,10000,,Please enter a valid value. The two nearest valid values are
+TC-007-011,10000,,10000,,Please fill out this field.
+TC-007-012,10000,-500,10000,Invalid amount. Please enter an amount greater than 0.,
+TC-007-013,10000,999999999,10000,Transaction Failed. You can not withdraw amount more than the balance.,

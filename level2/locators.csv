@@ -1,0 +1,13 @@
+element_name,locator_type,locator_value
+app_url,url,https://www.globalsqa.com/angularJs-protractor/BankingProject/
+customer_login_button,xpath,//button[normalize-space()='Customer Login']
+user_select,id,userSelect
+user_submit_button,xpath,//button[@type='submit']
+account_select,id,accountSelect
+deposit_tab_button,xpath,//button[normalize-space()='Deposit']
+withdraw_tab_button,xpath,//button[normalize-space()='Withdrawl']
+amount_input,xpath,//input[@placeholder='amount']
+deposit_button,xpath,//button[text()='Deposit']
+withdraw_button,xpath,//button[text()='Withdraw']
+transaction_message,xpath,//span[@ng-show='message']
+balance_display,xpath,//div[@class='center']//strong[2]

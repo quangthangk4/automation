@@ -33,7 +33,7 @@ class CommentTest(unittest.TestCase):
                 expected_message = row['expected_message'].strip()
                 expected_result = row['expected_result'].strip()
 
-                print(f"\n{'='*60}")
+                print(f"{'='*60}")
                 print(f"Test Case: {testcase_id}")
                 print(f"Comment Length: {len(comment_text)} characters")
 
@@ -128,7 +128,6 @@ class CommentTest(unittest.TestCase):
                     print(f"Error during test execution: {str(e)}")
                     self.verificationErrors.append(str(e))
 
-                print(f"{'='*60}\n")
                 time.sleep(1)
 
     def is_element_present(self, how, what):

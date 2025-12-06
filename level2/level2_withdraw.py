@@ -31,7 +31,7 @@ class WithdrawTest(unittest.TestCase):
                     'value': locator_value
                 }
 
-        print("\n" + "="*60)
+        print("" + "="*60)
         print("Loaded Locators:")
         for name, loc in self.locators.items():
             print(f"  {name}: {loc['type']} = {loc['value']}")
@@ -94,7 +94,7 @@ class WithdrawTest(unittest.TestCase):
                             error_message_input = ""
                         error_message_input += f" {lower} and {upper}."
 
-                print(f"\n{'='*60}")
+                print(f"{'='*60}")
                 print(f"Test Case: {testcase_id}")
 
                 # Navigate to the banking application using locator from CSV
@@ -186,7 +186,6 @@ class WithdrawTest(unittest.TestCase):
                     print(f"Balance verification: FAILED - Expected: '{expected_balance}', Actual: '{actual_balance}'")
                     self.verificationErrors.append(str(e))
 
-                print(f"{'='*60}\n")
                 time.sleep(1)
 
     def is_element_present(self, how, what):

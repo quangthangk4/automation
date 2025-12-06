@@ -1,0 +1,12 @@
+element_name,locator_type,locator_value
+login_url,url,https://ecommerce-playground.lambdatest.io/index.php?route=account/login
+email_input,id,input-email
+password_input,id,input-password
+login_button,xpath,//input[@value='Login']
+blog_menu,xpath,//div[@id='widget-navbar-217834']/ul/li[3]/a/div/span
+blog_post,xpath,//div[@id='mz-article-tab-76210960-0']/div/div/div[5]/div/div/a/img
+comment_input,id,input-comment
+submit_button,id,button-comment
+empty_message,xpath,//form[@id='form-comment']/div
+validation_message,xpath,//form[@id='form-comment']/div/div
+success_message,xpath,//form[@id='form-comment']/div

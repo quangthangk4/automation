@@ -13,22 +13,68 @@ class CommentTest(unittest.TestCase):
     def setUp(self):
         self.driver = webdriver.Chrome()
         self.driver.implicitly_wait(30)
-        self.base_url = "https://www.google.com/"
+        self.driver.maximize_window()
         self.verificationErrors = []
         self.accept_next_alert = True
-        self.driver.maximize_window()
+
+        # Load locators from CSV file
+        self.locators = {}
+        locators_file = os.path.join(os.path.dirname(__file__), 'locators_comment.csv')
+        with open(locators_file, 'r', encoding='utf-8') as file:
+            csv_reader = csv.DictReader(file)
+            for row in csv_reader:
+                element_name = row['element_name'].strip()
+                locator_type = row['locator_type'].strip()
+                locator_value = row['locator_value'].strip()
+                self.locators[element_name] = {
+                    'type': locator_type,
+                    'value': locator_value
+                }
+
+        print("\n" + "="*60)
+        print("Loaded Locators:")
+        for name, loc in self.locators.items():
+            print(f"  {name}: {loc['type']} = {loc['value']}")
+        print("="*60)
+
+    def get_by_type(self, locator_type):
+        """Convert locator type string to Selenium By type"""
+        locator_map = {
+            'id': By.ID,
+            'xpath': By.XPATH,
+            'name': By.NAME,
+            'class': By.CLASS_NAME,
+            'css': By.CSS_SELECTOR,
+            'tag': By.TAG_NAME,
+            'link_text': By.LINK_TEXT,
+            'partial_link_text': By.PARTIAL_LINK_TEXT
+        }
+        return locator_map.get(locator_type.lower(), By.XPATH)
+
+    def find_element_by_locator(self, element_name, wait_for_clickable=False):
+        """Find element using locator from CSV"""
+        locator = self.locators[element_name]
+        by_type = self.get_by_type(locator['type'])
+
+        if wait_for_clickable:
+            wait = WebDriverWait(self.driver, 10)
+            return wait.until(EC.element_to_be_clickable((by_type, locator['value'])))
+        else:
+            return self.driver.find_element(by_type, locator['value'])
 
     def test_comment_data_driven(self):
         driver = self.driver
         wait = WebDriverWait(driver, 10)
 
         # Read test data from CSV file
-        csv_file = os.path.join(os.path.dirname(__file__), 'comment.csv')
+        csv_file = os.path.join(os.path.dirname(__file__), 'comment_data.csv')
         with open(csv_file, 'r', encoding='utf-8') as file:
             csv_reader = csv.DictReader(file)
 
             for row in csv_reader:
                 testcase_id = row['testcase_id'].strip()
+                email = row['email'].strip()
+                password = row['password'].strip()
                 comment_text = row['comment_text']
                 expected_message = row['expected_message'].strip()
                 expected_result = row['expected_result'].strip()
@@ -41,43 +87,44 @@ class CommentTest(unittest.TestCase):
                 driver.delete_all_cookies()
                 time.sleep(0.5)
 
-                # Precondition: Login
-                driver.get("https://ecommerce-playground.lambdatest.io/index.php?route=account/login")
-                time.sleep(1)
-
                 try:
+                    # Precondition: Login using locators from CSV
+                    login_url = self.locators['login_url']['value']
+                    driver.get(login_url)
+                    time.sleep(1)
+
                     # Enter email
-                    email_input = wait.until(EC.element_to_be_clickable((By.ID, "input-email")))
+                    email_input = self.find_element_by_locator('email_input', wait_for_clickable=True)
                     email_input.click()
                     email_input.clear()
-                    email_input.send_keys("sanjzoro0@gmail.com")
+                    email_input.send_keys(email)
                     time.sleep(0.3)
 
                     # Enter password
-                    password_input = wait.until(EC.element_to_be_clickable((By.ID, "input-password")))
+                    password_input = self.find_element_by_locator('password_input', wait_for_clickable=True)
                     password_input.click()
                     password_input.clear()
-                    password_input.send_keys("12345")
+                    password_input.send_keys(password)
                     time.sleep(0.3)
 
                     # Click Login button
-                    login_button = wait.until(EC.element_to_be_clickable((By.XPATH, "//input[@value='Login']")))
+                    login_button = self.find_element_by_locator('login_button', wait_for_clickable=True)
                     login_button.click()
                     time.sleep(1)
                     print("Login successful!")
 
                     # Click on Blog menu
-                    blog_link = wait.until(EC.element_to_be_clickable((By.XPATH, "//div[@id='widget-navbar-217834']/ul/li[3]/a/div/span")))
+                    blog_link = self.find_element_by_locator('blog_menu', wait_for_clickable=True)
                     blog_link.click()
                     time.sleep(1)
 
                     # Click on a blog post
-                    blog_post = wait.until(EC.element_to_be_clickable((By.XPATH, "//div[@id='mz-article-tab-76210960-0']/div/div/div[5]/div/div/a/img")))
+                    blog_post = self.find_element_by_locator('blog_post', wait_for_clickable=True)
                     blog_post.click()
                     time.sleep(1)
 
                     # Click on comment input field
-                    comment_input = wait.until(EC.element_to_be_clickable((By.ID, "input-comment")))
+                    comment_input = self.find_element_by_locator('comment_input', wait_for_clickable=True)
                     comment_input.click()
                     time.sleep(0.3)
 
@@ -88,7 +135,7 @@ class CommentTest(unittest.TestCase):
                     time.sleep(0.5)
 
                     # Click submit button
-                    submit_button = wait.until(EC.element_to_be_clickable((By.ID, "button-comment")))
+                    submit_button = self.find_element_by_locator('submit_button', wait_for_clickable=True)
                     submit_button.click()
                     time.sleep(2)
 
@@ -96,13 +143,25 @@ class CommentTest(unittest.TestCase):
                     try:
                         if expected_result == "fail" and "Comment cannot be empty" in expected_message:
                             # For empty comment case
-                            actual_message = wait.until(EC.presence_of_element_located((By.XPATH, "//form[@id='form-comment']/div"))).text
+                            actual_message_element = self.find_element_by_locator('empty_message')
+                            actual_message = wait.until(EC.presence_of_element_located(
+                                (self.get_by_type(self.locators['empty_message']['type']),
+                                 self.locators['empty_message']['value'])
+                            )).text
                         elif expected_result == "fail":
                             # For other failure cases (length validation)
-                            actual_message = wait.until(EC.presence_of_element_located((By.XPATH, "//form[@id='form-comment']/div/div"))).text
+                            actual_message_element = self.find_element_by_locator('validation_message')
+                            actual_message = wait.until(EC.presence_of_element_located(
+                                (self.get_by_type(self.locators['validation_message']['type']),
+                                 self.locators['validation_message']['value'])
+                            )).text
                         else:
                             # For success cases
-                            actual_message = wait.until(EC.presence_of_element_located((By.XPATH, "//form[@id='form-comment']/div"))).text
+                            actual_message_element = self.find_element_by_locator('success_message')
+                            actual_message = wait.until(EC.presence_of_element_located(
+                                (self.get_by_type(self.locators['success_message']['type']),
+                                 self.locators['success_message']['value'])
+                            )).text
 
                         self.assertEqual(expected_message, actual_message)
                         print(f"Message verification: PASSED - '{actual_message}'")
@@ -132,28 +191,37 @@ class CommentTest(unittest.TestCase):
                 time.sleep(1)
 
     def is_element_present(self, how, what):
-        try: self.driver.find_element(by=how, value=what)
-        except NoSuchElementException as e: return False
+        try:
+            self.driver.find_element(by=how, value=what)
+        except NoSuchElementException:
+            return False
         return True
 
     def is_alert_present(self):
-        try: self.driver.switch_to_alert()
-        except NoAlertPresentException as e: return False
+        try:
+            self.driver.switch_to.alert
+        except NoAlertPresentException:
+            return False
         return True
 
     def close_alert_and_get_its_text(self):
         try:
-            alert = self.driver.switch_to_alert()
+            alert = self.driver.switch_to.alert
             alert_text = alert.text
             if self.accept_next_alert:
                 alert.accept()
             else:
                 alert.dismiss()
             return alert_text
-        finally: self.accept_next_alert = True
+        finally:
+            self.accept_next_alert = True
 
     def tearDown(self):
         self.driver.quit()
+        if self.verificationErrors:
+            print("\n=== Verification Errors Summary ===")
+            for error in self.verificationErrors:
+                print(f"- {error}")
         self.assertEqual([], self.verificationErrors)
 
 

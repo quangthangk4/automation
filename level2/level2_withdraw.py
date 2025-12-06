@@ -19,7 +19,7 @@ class WithdrawTest(unittest.TestCase):
 
         # Load locators from CSV file
         self.locators = {}
-        locators_file = os.path.join(os.path.dirname(__file__), 'locators.csv')
+        locators_file = os.path.join(os.path.dirname(__file__), 'locators_withdraw.csv')
         with open(locators_file, 'r', encoding='utf-8') as file:
             csv_reader = csv.DictReader(file)
             for row in csv_reader:
